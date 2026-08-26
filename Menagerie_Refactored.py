@@ -103,3 +103,83 @@ class Cage:
     def __repr__(self):
         return f"Cage(id={self._cageId!r}, animal_count={len(self._animals)})"
 
+# -----------------------------------------------------------------------------
+# Part C: Controller Class (replaces ALL globals + free functions)
+# -----------------------------------------------------------------------------
+
+
+class Zoo:
+
+    def __init__(self):
+        self._cages = {}
+        self._nextAnimalId = 1
+        self._speciesRegistry = {
+            "lion": Lion,
+            "snake": Snake,
+            "parrot": Parrot,
+        }
+
+    def registerSpecies(self, speciesName, animalCls):
+        if not issubclass(animalCls, Animal):
+            raise TypeError("animalCls must inherit from Animal.")
+        self._speciesRegistry[speciesName.lower()] = animalCls
+
+    def addCage(self, cageId):
+        if cageId in self._cages:
+            raise ValueError(f"Cage '{cageId}' already exists.")
+        self._cages[cageId] = Cage(cageId)
+
+    def addAnimal(self, name, species, cageId):
+        if cageId not in self._cages:
+            raise ValueError(f"Cage '{cageId}' does not exist.")
+        speciesKey = species.lower()
+        if speciesKey not in self._speciesRegistry:
+            raise ValueError(f"Unknown species '{species}'.")
+
+        animalCls = self._speciesRegistry[speciesKey]
+        animal = animalCls(name, self._nextAnimalId)
+        self._nextAnimalId += 1
+        self._cages[cageId].addAnimal(animal)
+        return animal
+
+    def feedAnimal(self, animalId):
+        animal = self._find_animal(animalId)
+        if animal is None:
+            raise ValueError(f"Animal with ID {animalId} not found.")
+        return animal.feed()
+
+    def moveAnimal(self, animalId, fromCageId, toCageId):
+        if fromCageId not in self._cages:
+            raise ValueError(f"Cage '{fromCageId}' does not exist.")
+        if toCageId not in self._cages:
+            raise ValueError(f"Cage '{toCageId}' does not exist.")
+
+        fromCage = self._cages[fromCageId]
+        toCage = self._cages[toCageId]
+        animal = next((a for a in fromCage.animals
+                       if a.animalId == animalId), None)
+        if animal is None:
+            raise ValueError(f"""
+            Animal {animalId} not found in cage {fromCageId}.""")
+
+        fromCage.removeAnimal(animal)
+        toCage.addAnimal(animal)
+        return animal
+
+    def rollCall(self, cageId):
+        if cageId not in self._cages:
+            raise ValueError(f"Cage '{cageId}' does not exist.")
+        return [animal.speak() for animal in self._cages[cageId].animals]
+
+    def reportCage(self, cageId):
+        if cageId not in self._cages:
+            raise ValueError(f"Cage '{cageId}' does not exist.")
+        return str(self._cages[cageId])
+
+    def _find_animal(self, animalId):
+        for cage in self._cages.values():
+            for animal in cage.animals:
+                if animal.animalId == animalId:
+                    return animal
+        return None
+
