@@ -183,3 +183,34 @@ class Zoo:
                     return animal
         return None
 
+# -----------------------------------------------------------------------------
+# Part D: Demo (mirrors the legacy __main__ block
+# -----------------------------------------------------------------------------
+
+
+if __name__ == "__main__":
+    zoo = Zoo()
+    for cage_id in ("c1", "c2", "c3"):
+        zoo.add_cage(cage_id)
+
+    zoo.add_animal("Leo", "lion", "c1")
+    zoo.add_animal("Kaa", "snake", "c2")
+    zoo.add_animal("Polly", "parrot", "c1")
+
+    print("initial roll call:")
+    for line in zoo.roll_call("c1"):
+        print(" ", line)
+
+    print("\nAdding a new animal...")
+    zoo.add_animal("Scar", "lion", "c3")
+
+    print("\nFeeding an animal...")
+    newHealth = zoo.feed_animal(2)
+    print(f"Kaa has been fed. Health is now {newHealth}.")
+
+    print("\nMoving Leo from c1 to c3...")
+    zoo.move_animal(1, "c1", "c3")
+
+    print("\nFinal State:")
+    for cage_id in ("c1", "c2", "c3"):
+        print(" ", zoo.report_cage(cage_id))
