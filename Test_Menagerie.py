@@ -9,8 +9,10 @@ class TestFeeding(unittest.TestCase):
         self.zoo.add_animal("Kaa", "snake", "c1")
 
     def test_feed_increases_health(self):
-        newHealth = self.zoo.feed_animal(1)
-        self.assertEqual(newHealth, 100)
+        animal = self.zoo._find_animal(1)
+        animal.health = 50
+        new_health = self.zoo.feed_animal(1)
+        self.assertEqual(new_health, 60)
 
     def test_feed_health_cap(self):
         for _ in range(5):
