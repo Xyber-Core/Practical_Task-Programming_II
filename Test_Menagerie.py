@@ -15,9 +15,12 @@ class TestFeeding(unittest.TestCase):
         self.assertEqual(new_health, 60)
 
     def test_feed_health_cap(self):
-        for _ in range(5):
-            self.zoo.feed_animal(1)
         animal = self.zoo._find_animal(1)
+        animal.health = 90
+
+        self.zoo.feed_animal(1)
+        self.zoo.feed_animal(1)
+
         self.assertLessEqual(animal.health, 100)
 
     def test_feed_records(self):
@@ -77,13 +80,16 @@ class TestSpeciesRegistration(unittest.TestCase):
         self.zoo = Zoo()
         self.zoo.add_cage("c1")
 
-    def test_register_new_species(self):
+   def test_register_new_species(self):
         class Penguin(Animal):
             def speak(self):
                 return f"{self._name} Honks!"
 
         self.zoo.register_species("penguin", Penguin)
-        self.assertIn("penguin", self.zoo._species_registry)
+        penguin = self.zoo.add_animal("Rico", "penguin", "c1")
+
+        self.assertIsInstance(penguin, Penguin)
+        self.assertEqual(penguin.speak(), "Rico Honks!")
 
     def test_unknown_species_raises(self):
         with self.assertRaises(ValueError):
